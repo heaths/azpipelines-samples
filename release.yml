@@ -37,8 +37,12 @@ stages:
 - stage: Signing
   dependsOn: Build
   jobs:
-  - checkout: none
-  - script: echo "Signing..."
+  - job: Sign
+    pool:
+      vmImage: ubuntu-18.04
+    steps:
+    - checkout: none
+    - script: echo "Signing..."
 - ${{ each artifact in parameters.artifacts }}:
   - stage: Release_${{ artifact.safeName }}
     displayName: 'Release: ${{ artifact.safeName }}'
