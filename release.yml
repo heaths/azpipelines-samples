@@ -66,14 +66,14 @@ stages:
                 echo "Tagging ${{ artifact.safeName }}"
   - stage: Check_${{ artifact.safeName }}
     displayName: 'Check: ${{ artifact.safeName }}'
-    condition: in(dependencies.Release_${{ artifact.safeName }}.result, 'Succeeded', 'SucceededWithIssues', 'Skipped', 'Canceled')
+    condition: always()
     jobs:
     - job: Check
       pool:
         vmImage: ubuntu-18.04
       steps:
       - checkout: none
-      - script: echo "Succeeded-ish"
+      - script: echo "$(variables['Agent.JobStatus'])"
 - stage: Integration
   dependsOn: Signing
   jobs:
