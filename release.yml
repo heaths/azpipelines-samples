@@ -25,10 +25,10 @@ stages:
     strategy:
       maxParallel: 2
       matrix:
-        Linux:
+        Ubuntu_18.04:
           vmImage: ubuntu-18.04
-        Windows:
-          vmImage: windows-2019
+        Ubuntu_16.04:
+          vmImage: ubuntu-16.04
     pool:
       vmImage: $(vmImage)
     steps:
