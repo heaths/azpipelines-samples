@@ -64,7 +64,7 @@ stages:
                 fi
                 echo "Tagging ${{ artifact.safeName }}"
   - stage: Check_${{ artifact.safeName }}
-    displayName: 'Check: ${{ artiface.safeName }}'
+    displayName: 'Check: ${{ artifact.safeName }}'
     dependsOn: Release_${{ artifact.safeName }}
     condition: in(dependencies.Release_${{ artifact.safeName }}.result, 'Succeeded', 'Skipped')
     jobs:
