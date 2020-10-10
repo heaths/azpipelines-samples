@@ -1,0 +1,81 @@
+name: release-sample
+parameters:
+- name: artifacts
+  type: object
+  default:
+  - safeName: a
+  - safeName: b
+  - safeName: c
+stages:
+- stage: Build
+  jobs:
+  - job: Build
+    pool:
+      vmImage: ubuntu-18.04
+    steps:
+    - checkout: none
+    - script: echo "Building..."
+  - job: Analyze
+    pool:
+      vmImage: ubuntu-18.04
+    steps:
+    - checkout: none
+    - script: echo "Analyzing..."
+  - job: Test
+    strategy:
+      maxParallel: 2
+      matrix:
+        Linux:
+          vmImage: ubuntu-18.04
+        Windows:
+          vmImage: windows-2019
+    pool:
+      vmImage: $(vmImage)
+    steps:
+    - checkout: none
+    - script: echo "Testing..."
+- stage: Signing
+  dependsOn: Build
+  jobs:
+  - checkout: none
+  - script: echo "Signing..."
+- ${{ each artifact in parameters.artifacts }}:
+  - stage: Release_${{ artifact.safeName }}
+    displayName: 'Release: ${{ artifact.safeName }}'
+    dependsOn: Signing
+    jobs:
+    - deployment: TagRepository
+      displayName: Create release tag
+      environment: github
+      pool:
+        vmImage: ubuntu-18.04
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - checkout: self
+            - script: |
+                if [ '${{ artifact.safeName }}' == 'c' ]; then
+                  exit 1
+                fi
+                echo "Tagging ${{ artifact.safeName }}"
+  - stage: Check_${{ artifact.safeName }}
+    displayName: 'Check: ${{ artiface.safeName }}'
+    dependsOn: Release_${{ artifact.safeName }}
+    condition: in(dependencies.Release_${{ artifact.safeName }}.result, 'Succeeded', 'Skipped')
+    jobs:
+    - job: Check
+      pool:
+        vmImage: ubuntu-18.04
+      steps:
+      - checkout: none
+      - script: echo "Succeeded-ish"
+- stage: Integration
+  dependsOn: Signing
+  jobs:
+  - job: PublishPackages
+    pool:
+      vmImage: ubuntu-18.04
+    steps:
+    - checkout: none
+    - script: echo "Publishing packages to daily feed"
