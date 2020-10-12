@@ -65,11 +65,8 @@ stages:
                   exit 1
                 fi
                 echo "Tagging ${{ artifact.safeName }}"
-  - stage: Check_${{ artifact.safeName }}
-    displayName: 'Check: ${{ artifact.safeName }}'
-    condition: always()
-    jobs:
     - job: Check
+      condition: always()
       pool:
         vmImage: ubuntu-18.04
       steps:
