@@ -48,6 +48,7 @@ stages:
   - stage: Release_${{ artifact.safeName }}
     displayName: 'Release: ${{ artifact.safeName }}'
     dependsOn: Signing
+    continueOnError: true
     jobs:
     - deployment: TagRepository
       displayName: Create release tag
